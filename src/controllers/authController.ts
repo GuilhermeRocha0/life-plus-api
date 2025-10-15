@@ -49,13 +49,23 @@ export const forgotPassword = async (req: Request, res: Response) => {
   }
 }
 
+export const verifyRecoveryCode = async (req: Request, res: Response) => {
+  const { email, code } = req.body
+
+  try {
+    const result = await authService.verifyRecoveryCode({ email, code })
+    res.status(200).json(result)
+  } catch (error) {
+    res.status(400).json({ error: (error as Error).message })
+  }
+}
+
 export const resetPassword = async (req: Request, res: Response) => {
-  const { email, code, newPassword, confirmPassword } = req.body
+  const { email, newPassword, confirmPassword } = req.body
 
   try {
     const result = await authService.resetPassword({
       email,
-      code,
       newPassword,
       confirmPassword
     })

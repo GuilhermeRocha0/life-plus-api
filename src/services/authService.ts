@@ -23,9 +23,13 @@ interface ForgotPasswordData {
   email: string
 }
 
-interface ResetPasswordData {
+interface VerifyCodeData {
   email: string
   code: string
+}
+
+interface ResetPasswordData {
+  email: string
   newPassword: string
   confirmPassword: string
 }
@@ -114,16 +118,27 @@ export const forgotPassword = async ({ email }: ForgotPasswordData) => {
   return { message: 'Código enviado para o e-mail' }
 }
 
+export const verifyRecoveryCode = async ({ email, code }: VerifyCodeData) => {
+  const stored = recoveryCodes.get(email)
+  if (!stored) throw new Error('Nenhum código encontrado para este e-mail')
+
+  if (stored.code !== code) throw new Error('Código incorreto')
+
+  if (Date.now() > stored.expiresAt) {
+    recoveryCodes.delete(email)
+    throw new Error('Código expirado')
+  }
+
+  return { message: 'Código verificado com sucesso' }
+}
+
 export const resetPassword = async ({
   email,
-  code,
   newPassword,
   confirmPassword
 }: ResetPasswordData) => {
   const stored = recoveryCodes.get(email)
-  if (!stored || stored.code !== code || Date.now() > stored.expiresAt) {
-    throw new Error('Código inválido ou expirado')
-  }
+  if (!stored) throw new Error('Código não verificado')
 
   if (newPassword !== confirmPassword) {
     throw new Error('A senha e a confirmação não coincidem')

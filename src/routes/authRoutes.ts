@@ -3,6 +3,7 @@ import {
   registerUser,
   loginUser,
   forgotPassword,
+  verifyRecoveryCode,
   resetPassword
 } from '../controllers/authController'
 
@@ -90,7 +91,6 @@ router.post('/login', loginUser)
  *             properties:
  *               email:
  *                 type: string
- *                 example: usuario@teste.com
  *     responses:
  *       200:
  *         description: Código enviado para o e-mail
@@ -98,6 +98,31 @@ router.post('/login', loginUser)
  *         description: E-mail não encontrado
  */
 router.post('/forgot-password', forgotPassword)
+
+/**
+ * @swagger
+ * /auth/verify-code:
+ *   post:
+ *     summary: Verifica o código de recuperação enviado ao e-mail
+ *     tags: [Auth Routes]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               code:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Código verificado com sucesso
+ *       400:
+ *         description: Código incorreto ou expirado
+ */
+router.post('/verify-code', verifyRecoveryCode)
 
 /**
  * @swagger
@@ -114,10 +139,8 @@ router.post('/forgot-password', forgotPassword)
  *             properties:
  *               email:
  *                 type: string
- *                 example: usuario@teste.com
  *               code:
  *                 type: string
- *                 example: "123456"
  *               newPassword:
  *                 type: string
  *               confirmPassword:
