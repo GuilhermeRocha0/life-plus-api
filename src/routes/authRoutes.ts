@@ -34,6 +34,8 @@ const router = Router()
  *                 type: string
  *               password:
  *                 type: string
+ *               confirmPassword:
+ *                 type: string
  *               birthDate:
  *                 type: string
  *                 format: date
@@ -43,6 +45,8 @@ const router = Router()
  *     responses:
  *       201:
  *         description: Usuário criado com sucesso
+ *       400:
+ *         description: Não foi possível criar o usuário
  */
 router.post('/register', registerUser)
 
@@ -116,7 +120,8 @@ router.post('/forgot-password', forgotPassword)
  *                 example: "123456"
  *               newPassword:
  *                 type: string
- *                 example: "novaSenha123"
+ *               confirmPassword:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Senha redefinida com sucesso
