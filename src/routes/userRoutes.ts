@@ -1,5 +1,10 @@
 import { Router } from 'express'
-import { getUsers, changePassword } from '../controllers/userController'
+import {
+  getUsers,
+  updatePassword,
+  updateEmail,
+  updateProfile
+} from '../controllers/userController'
 import { authenticateToken } from '../middlewares/authenticateToken'
 
 /**
@@ -24,7 +29,7 @@ router.get('/', getUsers)
 
 /**
  * @swagger
- * /users/change-password:
+ * /users/update-password:
  *   post:
  *     summary: Altera a senha do usuário logado
  *     tags: [User Routes]
@@ -49,6 +54,60 @@ router.get('/', getUsers)
  *       400:
  *         description: Erro ao alterar senha
  */
-router.post('/change-password', authenticateToken, changePassword)
+router.post('/update-password', authenticateToken, updatePassword)
+
+/**
+ * @swagger
+ * /users/update-email:
+ *   post:
+ *     summary: Altera o e-mail do usuário logado
+ *     tags: [User Routes]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               newEmail:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: E-mail atualizado com sucesso
+ *       400:
+ *         description: Erro ao atualizar o e-mail
+ */
+router.post('/update-email', authenticateToken, updateEmail)
+
+/**
+ * @swagger
+ * /users/update-profile:
+ *   put:
+ *     summary: Atualiza nome e data de nascimento do usuário logado
+ *     tags: [User Routes]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               birthDate:
+ *                 type: string
+ *                 format: date
+ *                 example: 2003-08-15
+ *     responses:
+ *       200:
+ *         description: Dados atualizados com sucesso
+ *       400:
+ *         description: Erro ao atualizar os dados
+ */
+router.put('/update-profile', authenticateToken, updateProfile)
 
 export default router

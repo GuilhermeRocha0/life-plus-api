@@ -13,16 +13,50 @@ export const getUsers = async (req: Request, res: Response) => {
   }
 }
 
-export const changePassword = async (req: Request, res: Response) => {
+export const updatePassword = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.id
     const { oldPassword, newPassword, confirmPassword } = req.body
 
-    const result = await userService.changeUserPassword({
+    const result = await userService.updateUserPassword({
       userId,
       oldPassword,
       newPassword,
       confirmPassword
+    })
+
+    res.status(200).json(result)
+  } catch (error: any) {
+    res.status(400).json({ error: error.message })
+  }
+}
+
+export const updateEmail = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.id
+    const { newEmail } = req.body
+
+    if (!newEmail) {
+      return res.status(400).json({ error: 'O novo e-mail é obrigatório' })
+    }
+
+    const result = await userService.updateUserEmail({ userId, newEmail })
+
+    res.status(200).json(result)
+  } catch (error: any) {
+    res.status(400).json({ error: error.message })
+  }
+}
+
+export const updateProfile = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.id
+    const { name, birthDate } = req.body
+
+    const result = await userService.updateUserProfile({
+      userId,
+      name,
+      birthDate
     })
 
     res.status(200).json(result)
