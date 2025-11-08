@@ -14,12 +14,35 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
+  id        String   @id @default(uuid())
   name      String
-  email     String    @unique
+  email     String   @unique
   password  String
   birthDate DateTime
-  role      String    @default("user")
-  createdAt DateTime  @default(now())
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+  Exam      Exam[]
 }
 
+model Exam {
+  id          String      @id @default(uuid())
+  name        String
+  description String?
+  date        DateTime
+  result      String?
+  userId      String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  user        User        @relation(fields: [userId], references: [id])
+  photos      ExamPhoto[]
+}
+
+model ExamPhoto {
+  id        String   @id @default(uuid())
+  examId    String
+  fileName  String
+  mimeType  String
+  data      Bytes
+  exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
