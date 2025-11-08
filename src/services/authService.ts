@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import nodemailer from 'nodemailer'
+import { validatePassword } from '../middlewares/validatePassword'
 
 const prisma = new PrismaClient()
 
@@ -32,11 +33,6 @@ interface ResetPasswordData {
   email: string
   newPassword: string
   confirmPassword: string
-}
-
-const validatePassword = (password: string) => {
-  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/
-  return regex.test(password)
 }
 
 const recoveryCodes = new Map<string, { code: string; expiresAt: number }>()

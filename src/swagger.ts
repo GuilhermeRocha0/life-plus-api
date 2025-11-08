@@ -10,7 +10,21 @@ const options = {
       version: '1.0.0',
       description:
         'API para gerenciamento de usuários, medicamentos, receitas e exames.'
-    }
+    },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
+      }
+    },
+    security: [
+      {
+        bearerAuth: []
+      }
+    ]
   },
   apis: ['./src/routes/*.ts']
 }
