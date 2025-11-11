@@ -21,7 +21,7 @@ export const createExam = async ({
   result,
   photos = []
 }: any) => {
-  if (!name || !date) throw new Error('Name and date are required')
+  if (!name || !date) throw new Error('Nome e data são obrigatórios.')
 
   const exam = await prisma.exam.create({
     data: {
@@ -41,7 +41,7 @@ export const createExam = async ({
     include: { photos: true }
   })
 
-  return { message: 'Exam created successfully', exam }
+  return { message: 'Exame criado com sucesso.', exam }
 }
 
 export const getExams = async (userId: string) => {
@@ -70,7 +70,7 @@ export const getExamById = async (id: string, userId: string) => {
   })
 
   if (!exam || exam.userId !== userId)
-    throw new Error('Exam not found or unauthorized')
+    throw new Error('Exame não encontrado ou acesso não autorizado.')
 
   return {
     ...exam,
@@ -91,7 +91,7 @@ export const getExamPhotoById = async (photoId: string, userId: string) => {
   })
 
   if (!photo || photo.exam.userId !== userId) {
-    throw new Error('Photo not found or unauthorized')
+    throw new Error('Foto não encontrada ou acesso não autorizado.')
   }
 
   return {
@@ -112,7 +112,7 @@ export const updateExam = async (
   })
 
   if (!existingExam || existingExam.userId !== userId)
-    throw new Error('Exam not found or unauthorized')
+    throw new Error('Exame não encontrado ou acesso não autorizado.')
 
   const { photos, removePhotos, result, ...rest } = data
   const encryptedResult = result ? encrypt(result) : existingExam.result
@@ -147,7 +147,7 @@ export const updateExam = async (
   })
 
   return {
-    message: 'Exam updated successfully',
+    message: 'Exame atualizado com sucesso.',
     updatedExam: {
       ...updatedExam,
       result: updatedExam.result ? decrypt(updatedExam.result) : null,
@@ -168,7 +168,7 @@ export const deleteExam = async (id: string, userId: string) => {
   })
 
   if (!exam || exam.userId !== userId)
-    throw new Error('Exam not found or unauthorized')
+    throw new Error('Exame não encontrado ou acesso não autorizado.')
 
   await prisma.examPhoto.deleteMany({
     where: { examId: id }
@@ -178,5 +178,5 @@ export const deleteExam = async (id: string, userId: string) => {
     where: { id }
   })
 
-  return { message: 'Exam deleted successfully' }
+  return { message: 'Exame excluído com sucesso.' }
 }
