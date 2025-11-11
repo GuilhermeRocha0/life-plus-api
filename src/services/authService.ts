@@ -97,12 +97,16 @@ export const forgotPassword = async ({ email }: ForgotPasswordData) => {
   recoveryCodes.set(email, { code, expiresAt })
 
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS
     }
   })
+
+  await transporter.verify()
 
   await transporter.sendMail({
     from: `"Life+ | Solicitação de Redefinição de Senha" <${process.env.EMAIL_USER}>`,
