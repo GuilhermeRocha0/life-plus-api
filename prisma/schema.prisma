@@ -14,14 +14,15 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
+  id        String     @id @default(uuid())
   name      String
-  email     String   @unique
+  email     String     @unique
   password  String
   birthDate DateTime
-  role      String   @default("user")
-  createdAt DateTime @default(now())
-  Exam      Exam[]
+  role      String     @default("user")
+  createdAt DateTime   @default(now())
+  exams     Exam[]
+  medicines Medicine[]
 }
 
 model Exam {
@@ -45,4 +46,46 @@ model ExamPhoto {
   data      Bytes
   exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+}
+
+model Medicine {
+  id     String @id @default(uuid())
+  name   String
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  type MedicineType
+
+  intervalHours     Int
+  lastTakenAt       DateTime
+  continuousUse     Boolean
+  treatmentFinished Boolean  @default(false)
+
+  totalPills   Int?
+  pillsPerDose Int?
+
+  totalMl   Float?
+  mlPerDose Float?
+
+  remainingPills Int?
+  remainingMl    Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  history MedicineHistory[]
+}
+
+model MedicineHistory {
+  id         String   @id @default(uuid())
+  medicineId String
+  medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  takenAt    DateTime
+  onTime     Boolean
+  createdAt  DateTime @default(now())
+}
+
+enum MedicineType {
+  PILL
+  LIQUID
 }
