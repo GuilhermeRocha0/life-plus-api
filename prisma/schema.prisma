@@ -14,28 +14,30 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(uuid())
+  id        String   @id @default(uuid())
   name      String
-  email     String     @unique
+  email     String   @unique
   password  String
   birthDate DateTime
-  role      String     @default("user")
-  createdAt DateTime   @default(now())
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+
   exams     Exam[]
   medicines Medicine[]
 }
 
 model Exam {
-  id          String      @id @default(uuid())
+  id          String   @id @default(uuid())
   name        String
   description String?
   date        DateTime
   result      String?
   userId      String
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  user        User        @relation(fields: [userId], references: [id])
-  photos      ExamPhoto[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  photos ExamPhoto[]
 }
 
 model ExamPhoto {
@@ -52,7 +54,8 @@ model Medicine {
   id     String @id @default(uuid())
   name   String
   userId String
-  user   User   @relation(fields: [userId], references: [id])
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   type MedicineType
 
@@ -77,12 +80,14 @@ model Medicine {
 }
 
 model MedicineHistory {
-  id         String   @id @default(uuid())
+  id         String @id @default(uuid())
   medicineId String
-  medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
-  takenAt    DateTime
-  onTime     Boolean
-  createdAt  DateTime @default(now())
+
+  medicine Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+
+  takenAt   DateTime
+  onTime    Boolean
+  createdAt DateTime @default(now())
 }
 
 enum MedicineType {

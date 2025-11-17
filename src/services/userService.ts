@@ -122,3 +122,19 @@ export const updateUserProfile = async ({
 
   return { message: 'Dados atualizados com sucesso', user: updatedUser }
 }
+
+export const deleteUserCompletely = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId }
+  })
+
+  if (!user) throw new Error('Usuário não encontrado')
+
+  await prisma.user.delete({
+    where: { id: userId }
+  })
+
+  return {
+    message: 'Usuário e todos os seus dados foram excluídos com sucesso'
+  }
+}
