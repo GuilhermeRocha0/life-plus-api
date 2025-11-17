@@ -85,32 +85,29 @@ export const updateMedicine = async (
   if (!medicine || medicine.userId !== userId)
     throw new Error('Remédio não encontrado ou acesso não autorizado.')
 
-  const {
-    name,
-    type,
-    intervalHours,
-    lastTakenAt,
-    continuousUse,
-    treatmentFinished,
-    totalPills,
-    pillsPerDose,
-    totalMl,
-    mlPerDose
-  } = data
-
   const updatedMedicine = await prisma.medicine.update({
     where: { id },
     data: {
-      ...(name && { name }),
-      ...(type && { type }),
-      ...(intervalHours && { intervalHours }),
-      ...(lastTakenAt && { lastTakenAt: new Date(lastTakenAt) }),
-      ...(continuousUse !== undefined && { continuousUse }),
-      ...(treatmentFinished !== undefined && { treatmentFinished }),
-      ...(totalPills !== undefined && { totalPills }),
-      ...(pillsPerDose !== undefined && { pillsPerDose }),
-      ...(totalMl !== undefined && { totalMl }),
-      ...(mlPerDose !== undefined && { mlPerDose })
+      ...(data.name !== undefined && { name: data.name }),
+      ...(data.type !== undefined && { type: data.type }),
+      ...(data.intervalHours !== undefined && {
+        intervalHours: data.intervalHours
+      }),
+      ...(data.lastTakenAt !== undefined && {
+        lastTakenAt: new Date(data.lastTakenAt)
+      }),
+      ...(data.continuousUse !== undefined && {
+        continuousUse: data.continuousUse
+      }),
+      ...(data.treatmentFinished !== undefined && {
+        treatmentFinished: data.treatmentFinished
+      }),
+      ...(data.totalPills !== undefined && { totalPills: data.totalPills }),
+      ...(data.pillsPerDose !== undefined && {
+        pillsPerDose: data.pillsPerDose
+      }),
+      ...(data.totalMl !== undefined && { totalMl: data.totalMl }),
+      ...(data.mlPerDose !== undefined && { mlPerDose: data.mlPerDose })
     }
   })
 
@@ -123,6 +120,11 @@ export const deleteMedicine = async (id: string, userId: string) => {
   if (!medicine || medicine.userId !== userId)
     throw new Error('Remédio não encontrado ou acesso não autorizado.')
 
+  await prisma.medicineHistory.deleteMany({
+    where: { medicineId: id }
+  })
+
   await prisma.medicine.delete({ where: { id } })
+
   return { mensagem: 'Remédio excluído com sucesso.' }
 }

@@ -68,13 +68,27 @@ export const updateExam = async (req: Request, res: Response) => {
 
     const files = req.files as Express.Multer.File[] | undefined
 
+    let parsedRemovePhotos: string[] = []
+
+    if (typeof removePhotos === 'string') {
+      try {
+        parsedRemovePhotos = JSON.parse(removePhotos)
+      } catch {
+        return res
+          .status(400)
+          .json({ erro: 'removePhotos deve ser um array JSON válido.' })
+      }
+    } else if (Array.isArray(removePhotos)) {
+      parsedRemovePhotos = removePhotos
+    }
+
     const updatedExam = await examService.updateExam(id, userId, {
       name,
       description,
       date,
       result,
       photos: files || [],
-      removePhotos: removePhotos ? JSON.parse(removePhotos) : []
+      removePhotos: parsedRemovePhotos
     })
 
     res.status(200).json(updatedExam)

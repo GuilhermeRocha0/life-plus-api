@@ -88,3 +88,18 @@ export const getHistoryById = async (historyId: string, userId: string) => {
 
   return history
 }
+
+export const deleteHistory = async (historyId: string, userId: string) => {
+  const history = await prisma.medicineHistory.findUnique({
+    where: { id: historyId },
+    include: { medicine: true }
+  })
+
+  if (!history || history.medicine.userId !== userId) {
+    throw new Error('Histórico não encontrado ou não autorizado.')
+  }
+
+  await prisma.medicineHistory.delete({ where: { id: historyId } })
+
+  return { mensagem: 'Histórico removido com sucesso.' }
+}

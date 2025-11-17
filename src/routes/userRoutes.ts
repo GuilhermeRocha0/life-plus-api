@@ -3,7 +3,8 @@ import {
   getUsers,
   updatePassword,
   updateEmail,
-  updateProfile
+  updateProfile,
+  deleteUser
 } from '../controllers/userController'
 import { authenticateToken } from '../middlewares/authenticateToken'
 
@@ -109,5 +110,21 @@ router.post('/update-email', authenticateToken, updateEmail)
  *         description: Erro ao atualizar os dados
  */
 router.put('/update-profile', authenticateToken, updateProfile)
+
+/**
+ * @swagger
+ * /users/delete-account:
+ *   delete:
+ *     summary: Exclui o usuário logado e todos os seus dados relacionados
+ *     tags: [User Routes]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Conta excluída com sucesso
+ *       400:
+ *         description: Erro ao excluir conta
+ */
+router.delete('/delete-account', authenticateToken, deleteUser)
 
 export default router
