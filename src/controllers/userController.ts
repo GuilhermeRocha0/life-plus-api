@@ -76,3 +76,15 @@ export const deleteUser = async (req: Request, res: Response) => {
     res.status(400).json({ error: error.message })
   }
 }
+
+export const getLoggedUser = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.id
+
+    const user = await userService.getLoggedUser(userId)
+
+    res.status(200).json(user)
+  } catch (error: any) {
+    res.status(400).json({ error: error.message })
+  }
+}

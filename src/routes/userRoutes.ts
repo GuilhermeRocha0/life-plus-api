@@ -4,7 +4,8 @@ import {
   updatePassword,
   updateEmail,
   updateProfile,
-  deleteUser
+  deleteUser,
+  getLoggedUser
 } from '../controllers/userController'
 import { authenticateToken } from '../middlewares/authenticateToken'
 
@@ -126,5 +127,40 @@ router.put('/update-profile', authenticateToken, updateProfile)
  *         description: Erro ao excluir conta
  */
 router.delete('/delete-account', authenticateToken, deleteUser)
+
+/**
+ * @swagger
+ * /users/me:
+ *   get:
+ *     summary: Retorna os dados do usuário logado
+ *     tags: [User Routes]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Dados do usuário retornados com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 birthDate:
+ *                   type: string
+ *                   format: date
+ *                 role:
+ *                   type: string
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *       401:
+ *         description: Token inválido ou ausente
+ */
+router.get('/me', authenticateToken, getLoggedUser)
 
 export default router
