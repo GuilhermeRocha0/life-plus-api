@@ -138,3 +138,21 @@ export const deleteUserCompletely = async (userId: string) => {
     message: 'Usuário e todos os seus dados foram excluídos com sucesso'
   }
 }
+
+export const getLoggedUser = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      birthDate: true,
+      role: true,
+      createdAt: true
+    }
+  })
+
+  if (!user) throw new Error('Usuário não encontrado')
+
+  return user
+}
