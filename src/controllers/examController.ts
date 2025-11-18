@@ -1,4 +1,5 @@
 import { Request, Response } from 'express'
+import multer from 'multer'
 import * as examService from '../services/examService'
 
 export const createExam = async (req: Request, res: Response) => {
@@ -17,9 +18,24 @@ export const createExam = async (req: Request, res: Response) => {
       photos: files || []
     })
 
-    res.status(201).json(exam)
+    return res.status(201).json(exam)
   } catch (error: any) {
-    res.status(400).json({ erro: error.message })
+    if (error instanceof multer.MulterError) {
+      return res.status(400).json({
+        erro: 'Erro no upload dos arquivos. Verifique os tipos permitidos.'
+      })
+    }
+
+    if (
+      error.message?.includes('permitido') ||
+      error.message?.includes('allowed')
+    ) {
+      return res.status(400).json({
+        erro: 'Formato de arquivo não permitido. Utilize JPG, PNG ou PDF.'
+      })
+    }
+
+    return res.status(400).json({ erro: error.message })
   }
 }
 
@@ -93,6 +109,21 @@ export const updateExam = async (req: Request, res: Response) => {
 
     res.status(200).json(updatedExam)
   } catch (error: any) {
+    if (error instanceof multer.MulterError) {
+      return res.status(400).json({
+        erro: 'Erro no upload dos arquivos. Verifique os tipos permitidos.'
+      })
+    }
+
+    if (
+      error.message?.includes('permitido') ||
+      error.message?.includes('allowed')
+    ) {
+      return res.status(400).json({
+        erro: 'Formato de arquivo não permitido. Utilize JPG, PNG ou PDF.'
+      })
+    }
+
     res.status(400).json({ erro: error.message })
   }
 }
