@@ -51,10 +51,10 @@ export const getExams = async (userId: string) => {
     orderBy: { date: 'desc' }
   })
 
-  return exams.map(exam => ({
+  return exams.map((exam: any) => ({
     ...exam,
     result: exam.result ? decrypt(exam.result) : null,
-    photos: exam.photos.map(p => ({
+    photos: exam.photos.map((p: any) => ({
       id: p.id,
       fileName: decrypt(p.fileName),
       mimeType: decrypt(p.mimeType),
@@ -75,7 +75,7 @@ export const getExamById = async (id: string, userId: string) => {
   return {
     ...exam,
     result: exam.result ? decrypt(exam.result) : null,
-    photos: exam.photos.map(p => ({
+    photos: exam.photos.map((p: any) => ({
       id: p.id,
       fileName: decrypt(p.fileName),
       mimeType: decrypt(p.mimeType),
@@ -151,7 +151,7 @@ export const updateExam = async (
     updatedExam: {
       ...updatedExam,
       result: updatedExam.result ? decrypt(updatedExam.result) : null,
-      photos: updatedExam.photos.map(p => ({
+      photos: updatedExam.photos.map((p: any) => ({
         id: p.id,
         fileName: decrypt(p.fileName),
         mimeType: decrypt(p.mimeType),
