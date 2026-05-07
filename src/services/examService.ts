@@ -34,10 +34,12 @@ export const createExam = async ({
     const { error } = await supabase.storage
       .from('exam-photos')
       .upload(fileName, file.buffer, {
-        contentType: file.mimetype
+        contentType: file.mimetype,
+        upsert: false
       })
 
     if (error) {
+      console.log('Supabase upload error:', error)
       throw new Error(error.message)
     }
 
@@ -185,10 +187,12 @@ export const updateExam = async (
       const { error } = await supabase.storage
         .from('exam-photos')
         .upload(fileName, file.buffer, {
-          contentType: file.mimetype
+          contentType: file.mimetype,
+          upsert: false
         })
 
       if (error) {
+        console.log('Supabase upload error:', error)
         throw new Error(error.message)
       }
 
