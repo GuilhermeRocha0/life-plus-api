@@ -9,8 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
@@ -46,10 +46,8 @@ model ExamPhoto {
   examId    String
   fileName  String
   mimeType  String
-  url       String?
-
+  data      Bytes
   exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
-
   createdAt DateTime @default(now())
 }
 
