@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import { encrypt, decrypt } from './cryptoService'
+import { supabase } from '../config/supabase'
 
 const prisma = new PrismaClient()
 
@@ -21,7 +22,35 @@ export const createExam = async ({
   result,
   photos = []
 }: any) => {
-  if (!name || !date) throw new Error('Nome e data são obrigatórios.')
+  if (!name || !date) {
+    throw new Error('Nome e data são obrigatórios.')
+  }
+
+  const uploadedPhotos = []
+
+  for (const file of photos) {
+    const fileName = `${Date.now()}-${file.originalname}`
+
+    const { error } = await supabase.storage
+      .from('exam-photos')
+      .upload(fileName, file.buffer, {
+        contentType: file.mimetype
+      })
+
+    if (error) {
+      throw new Error(error.message)
+    }
+
+    const { data } = supabase.storage
+      .from('exam-photos')
+      .getPublicUrl(fileName)
+
+    uploadedPhotos.push({
+      fileName: encrypt(file.originalname),
+      mimeType: encrypt(file.mimetype),
+      url: data.publicUrl
+    })
+  }
 
   const exam = await prisma.exam.create({
     data: {
@@ -31,17 +60,18 @@ export const createExam = async ({
       date: new Date(date),
       result: result ? encrypt(result) : null,
       photos: {
-        create: photos.map((file: Express.Multer.File) => ({
-          fileName: encrypt(file.originalname),
-          mimeType: encrypt(file.mimetype),
-          data: file.buffer
-        }))
+        create: uploadedPhotos
       }
     },
-    include: { photos: true }
+    include: {
+      photos: true
+    }
   })
 
-  return { message: 'Exame criado com sucesso.', exam }
+  return {
+    message: 'Exame criado com sucesso.',
+    exam
+  }
 }
 
 export const getExams = async (userId: string) => {
@@ -84,7 +114,10 @@ export const getExamById = async (id: string, userId: string) => {
   }
 }
 
-export const getExamPhotoById = async (photoId: string, userId: string) => {
+export const getExamPhotoById = async (
+  photoId: string,
+  userId: string
+) => {
   const photo = await prisma.examPhoto.findUnique({
     where: { id: photoId },
     include: { exam: true }
@@ -95,7 +128,7 @@ export const getExamPhotoById = async (photoId: string, userId: string) => {
   }
 
   return {
-    data: photo.data,
+    url: photo.url,
     mimeType: decrypt(photo.mimeType),
     fileName: decrypt(photo.fileName)
   }
@@ -118,6 +151,24 @@ export const updateExam = async (
   const encryptedResult = result ? encrypt(result) : existingExam.result
 
   if (removePhotos && removePhotos.length > 0) {
+    const photosToRemove = await prisma.examPhoto.findMany({
+      where: {
+        id: { in: removePhotos }
+      }
+    })
+
+    for (const photo of photosToRemove) {
+      if (photo.url) {
+        const fileName = photo.url.split('/').pop()
+
+        if (fileName) {
+          await supabase.storage
+            .from('exam-photos')
+            .remove([fileName])
+        }
+      }
+    }
+
     await prisma.examPhoto.deleteMany({
       where: {
         id: { in: removePhotos }
@@ -126,13 +177,35 @@ export const updateExam = async (
   }
 
   if (photos && photos.length > 0) {
-    await prisma.examPhoto.createMany({
-      data: photos.map((file: Express.Multer.File) => ({
+    const uploadedPhotos = []
+
+    for (const file of photos) {
+      const fileName = `${Date.now()}-${file.originalname}`
+
+      const { error } = await supabase.storage
+        .from('exam-photos')
+        .upload(fileName, file.buffer, {
+          contentType: file.mimetype
+        })
+
+      if (error) {
+        throw new Error(error.message)
+      }
+
+      const { data } = supabase.storage
+        .from('exam-photos')
+        .getPublicUrl(fileName)
+
+      uploadedPhotos.push({
         examId: id,
         fileName: encrypt(file.originalname),
         mimeType: encrypt(file.mimetype),
-        data: file.buffer
-      }))
+        url: data.publicUrl
+      })
+    }
+
+    await prisma.examPhoto.createMany({
+      data: uploadedPhotos
     })
   }
 
@@ -150,11 +223,15 @@ export const updateExam = async (
     message: 'Exame atualizado com sucesso.',
     updatedExam: {
       ...updatedExam,
-      result: updatedExam.result ? decrypt(updatedExam.result) : null,
+      result: updatedExam.result
+        ? decrypt(updatedExam.result)
+        : null,
+
       photos: updatedExam.photos.map((p: any) => ({
         id: p.id,
         fileName: decrypt(p.fileName),
         mimeType: decrypt(p.mimeType),
+        url: p.url,
         createdAt: p.createdAt
       }))
     }
@@ -167,8 +244,21 @@ export const deleteExam = async (id: string, userId: string) => {
     include: { photos: true }
   })
 
-  if (!exam || exam.userId !== userId)
+  if (!exam || exam.userId !== userId) {
     throw new Error('Exame não encontrado ou acesso não autorizado.')
+  }
+
+  for (const photo of exam.photos) {
+    if (photo.url) {
+      const fileName = photo.url.split('/').pop()
+
+      if (fileName) {
+        await supabase.storage
+          .from('exam-photos')
+          .remove([fileName])
+      }
+    }
+  }
 
   await prisma.examPhoto.deleteMany({
     where: { examId: id }
@@ -178,5 +268,7 @@ export const deleteExam = async (id: string, userId: string) => {
     where: { id }
   })
 
-  return { message: 'Exame excluído com sucesso.' }
+  return {
+    message: 'Exame excluído com sucesso.'
+  }
 }

@@ -35,7 +35,12 @@ export const createExam = async (req: Request, res: Response) => {
       })
     }
 
-    return res.status(400).json({ erro: error.message })
+    console.error(error)
+
+    return res.status(500).json({
+      erro: error.message,
+      stack: error.stack
+    })
   }
 }
 
@@ -70,7 +75,7 @@ export const getExamPhotoById = async (req: Request, res: Response) => {
 
     res.setHeader('Content-Type', photo.mimeType)
     res.setHeader('Content-Disposition', `inline; filename="${photo.fileName}"`)
-    res.send(photo.data)
+    res.status(200).json(photo)
   } catch (error: any) {
     res.status(404).json({ erro: error.message })
   }
