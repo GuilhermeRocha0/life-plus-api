@@ -75,7 +75,7 @@ export const getExamPhotoById = async (req: Request, res: Response) => {
 
     res.setHeader('Content-Type', photo.mimeType)
     res.setHeader('Content-Disposition', `inline; filename="${photo.fileName}"`)
-    res.status(200).json(photo)
+    return res.status(200).redirect(photo.url)
   } catch (error: any) {
     res.status(404).json({ erro: error.message })
   }
